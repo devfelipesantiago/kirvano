@@ -8,13 +8,30 @@ type TokenPayload = {
 };
 
 function sign(payload: TokenPayload): string {
-  const token = jwt.sign(payload, secret);
+  const token = jwt.sign(payload, secret, { expiresIn: '1h' });
   return token;
 }
 
 function verify(token: string): TokenPayload {
-  const data = jwt.verify(token, secret) as TokenPayload;
-  return data;
+  if (!token) {
+    throw new Error('Token é obrigatório');
+  }
+
+  try {
+    const data = jwt.verify(token, secret) as TokenPayload;
+    return data;
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      throw new Error('Token inválido');
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new Error('Token expirado');
+    }
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw error;
+  }
 }
 
 export default {

@@ -9,14 +9,16 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ message: 'Token é obrigatório' });
   }
 
+  const token = authorization.split(' ')[ 1 ];
+
   try {
-    const decoded = await jwtUtil.verify(authorization);
+    const decoded = jwtUtil.verify(token);
     const user = await UserModel.findOne({ where: { email: decoded.email } });
     if (!user) return res.status(401).json({ message: 'Token inválido' });
 
     next();
   } catch (e) {
-    return res.status(401).json({ message: 'Token inválido' });
+    return res.status(401).json({ message: 'Token inválido aqui' });
   }
 }
 
