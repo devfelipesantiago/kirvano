@@ -8,6 +8,15 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(100) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
   INDEX idx_email (email)
 );
+
+CREATE TABLE IF NOT EXISTS favorite_pokemons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    pokemon_name VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_favorite (user_id, pokemon_name)
+);
+
+CREATE INDEX idx_user_id ON favorite_pokemons (user_id);
