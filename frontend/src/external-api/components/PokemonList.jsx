@@ -1,13 +1,14 @@
-import React, { use, useEffect, useState } from 'react';
-import { pokeApiService } from '../services/pokeApiService.js';
-import { favoritePokemonService } from '../services/favoritePokemonService';
-import { useAuth } from '../../auth/context/AuthContext.jsx';
+import React, { use, useEffect, useState } from "react";
+import { pokeApiService } from "../services/pokeApiService.js";
+import { favoritePokemonService } from "../services/favoritePokemonService";
+import { useAuth } from "../../auth/context/AuthContext.jsx";
 
 const PokemonList = () => {
   const [pokemons, setPokemons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [feedback, setFeedback] = useState({ message: '', type: '' });
+  const [feedback, setFeedback] = useState({ message: "", type: "" });
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { user } = useAuth();
 
@@ -15,42 +16,48 @@ const PokemonList = () => {
     const fetchAllPokemonData = async () => {
       try {
         setLoading(true);
-        const { data } = await pokeApiService.getPokemonList();
+        const { data } = await pokeApiService.getPokemonList(currentPage);
 
-        const detailedPokemonPromises = data.results.map(pokemon => 
-          fetch(pokemon.url).then(res => res.json())
+        const detailedPokemonPromises = data.results.map((pokemon) =>
+          fetch(pokemon.url).then((res) => res.json())
         );
 
         const detailedPokemons = await Promise.all(detailedPokemonPromises);
 
-        const formattedPokemons = detailedPokemons.map(p => ({
+        const formattedPokemons = detailedPokemons.map((p) => ({
           name: p.name,
           imageUrl: p.sprites.front_default,
-          abilities: p.abilities.map(a => a.ability.name),
+          abilities: p.abilities.map((a) => a.ability.name),
         }));
 
         setPokemons(formattedPokemons);
       } catch (err) {
-        console.error('Erro ao buscar dados dos Pokemons:', err);
-        setError('Não foi possível carregar a lista de Pokemons.');
+        console.error("Erro ao buscar dados dos Pokemons:", err);
+        setError("Não foi possível carregar a lista de Pokemons.");
       } finally {
         setLoading(false);
       }
     };
     fetchAllPokemonData();
-  }, []);
+  }, [currentPage]);
 
   const handleFavoriteClick = async (pokemonName) => {
     if (!user) {
-      setFeedback({ message: 'Faça login para favoritar um Pokémon.', type: 'error' });
+      setFeedback({
+        message: "Faça login para favoritar um Pokémon.",
+        type: "error",
+      });
       return;
     }
 
     try {
       await favoritePokemonService.addFavorite(pokemonName, user.token);
-      setFeedback({ message: `${pokemonName} adicionado aos favoritos!`, type: 'success' });
+      setFeedback({
+        message: `${pokemonName} adicionado aos favoritos!`,
+        type: "success",
+      });
     } catch (err) {
-      setFeedback({ message: err.message, type: 'error' });
+      setFeedback({ message: err.message, type: "error" });
     }
   };
 
@@ -59,41 +66,78 @@ const PokemonList = () => {
   }
 
   if (error) {
-    return <section className="section-card" style={{ color: 'var(--error-color)' }}>{error}</section>;
+    return (
+      <section className="section-card" style={{ color: "var(--error-color)" }}>
+        {error}
+      </section>
+    );
   }
 
   return (
     <section className="section-card">
-      <h2>Lista de Pokemons</h2>
-      {feedback.message && (
-        <p style={{ 
-          color: feedback.type === 'success' ? 'var(--success-color)' : 'var(--error-color)',
-          marginBottom: '1rem'
-        }}>
-          {feedback.message}
-        </p>
-      )}
+      <div className="container">
+        <h2>Lista de Pokemons</h2>
+        {feedback.message && (
+          <p
+            style={{
+              color:
+                feedback.type === "success"
+                  ? "var(--success-color)"
+                  : "var(--error-color)",
+              marginBottom: "1rem",
+            }}
+          >
+            {feedback.message}
+          </p>
+        )}
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </button>
+          <span className="page-number"> Página {currentPage}</span>
+          <button onClick={() => setCurrentPage(currentPage + 1)}>
+            Próxima
+          </button>
+        </div>
+      </div>
       <ul className="pokemon-list">
         {pokemons.map((pokemon) => (
           <li className="pokemon-card" key={pokemon.name}>
             <div className="pokemon-card-content">
-                <img src={pokemon.imageUrl} alt={pokemon.name} className="pokemon-image" />
-                <div>
-                  <h3>{pokemon.name}</h3>
-                  <p className="pokemon-abilities">
-                    Habilidades: {pokemon.abilities.join(', ')}
-                  </p>
-                </div>
+              <img
+                src={pokemon.imageUrl}
+                alt={pokemon.name}
+                className="pokemon-image"
+              />
+              <div>
+                <h3>{pokemon.name}</h3>
+                <p className="pokemon-abilities">
+                  Habilidades: {pokemon.abilities.join(", ")}
+                </p>
+              </div>
             </div>
-            <button 
+            <button
               className="btn btn-favorite"
               onClick={() => handleFavoriteClick(pokemon.name)}
-              >
+            >
               Favoritar
             </button>
           </li>
         ))}
       </ul>
+      <div className="container">
+        <button
+          onClick={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Anterior
+        </button>
+        <span className="page-number"> Página {currentPage}</span>
+        <button onClick={() => setCurrentPage(currentPage + 1)}>Próxima</button>
+      </div>
     </section>
   );
 };
