@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import { authService } from '../services/authService.js';
-import { useAuth } from '../context/AuthContext.jsx';
+import React, { useState } from "react";
+import { authService } from "../services/authService.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await authService.login({email, password});
+      const { data } = await authService.login({ email, password });
       if (data && data.token) {
-        setMessage('Login realizado com sucesso!');
+        setMessage("Login realizado com sucesso!");
         login(data.token, email);
       } else {
-        throw new Error('Token de autenticação não encontrado na resposta.');
+        throw new Error("Token de autenticação não encontrado na resposta.");
       }
     } catch (error) {
       setMessage(`Erro: ${error.message}`);
@@ -54,11 +54,19 @@ const LoginPage = () => {
           />
         </div>
 
-        <button className="btn" type="submit">Entrar</button>
+        <button className="btn" type="submit">
+          Entrar
+        </button>
       </form>
       {message && (
-        <p style={{ color: message.includes('Erro') ? 'var(--error-color)' : 'var(--success-color)' }}>
-          {'Usuário ou senha inválidos'}
+        <p
+          style={{
+            color: message.includes("Erro")
+              ? "var(--error-color)"
+              : "var(--success-color)",
+          }}
+        >
+          {"Usuário ou senha inválidos"}
         </p>
       )}
     </section>

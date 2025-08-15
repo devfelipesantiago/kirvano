@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
-import RegisterPage from './auth/components/RegisterPage.jsx';
-import LoginPage from './auth/components/LoginPage.jsx';
-import PokemonList from './external-api/components/PokemonList.jsx';
-import './App.css';
-import { useAuth } from './auth/context/AuthContext.jsx';
-import ProtectedRoute from './ProtectedRoute.jsx';
-import ProfilePage from './ProfilePage.jsx';
+import React, { useState } from "react";
+import { Routes, Route, Link } from "react-router-dom";
+import RegisterPage from "./auth/components/RegisterPage.jsx";
+import LoginPage from "./auth/components/LoginPage.jsx";
+import PokemonList from "./external-api/components/PokemonList.jsx";
+import "./App.css";
+import { useAuth } from "./auth/context/AuthContext.jsx";
+import ProtectedRoute from "./pages/ProtectedRoute.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 const HomePage = () => {
   return (
@@ -30,18 +30,36 @@ function App() {
           <div className="bar"></div>
           <div className="bar"></div>
         </div>
-        <nav className={`nav-links ${isNavOpen ? 'open' : ''}`}>
-          <Link to="/" onClick={() => setIsNavOpen(false)}>Home</Link>
+        <nav className={`nav-links ${isNavOpen ? "open" : ""}`}>
+          <Link to="/" onClick={() => setIsNavOpen(false)}>
+            Home
+          </Link>
           {user ? (
             <>
-              <Link to="/pokemons" onClick={() => setIsNavOpen(false)}>Pokemons</Link>
-              <Link to="/profile" onClick={() => setIsNavOpen(false)}>Perfil</Link>
-              <button className="btn btn-secondary" onClick={() => { logout(); setIsNavOpen(false); }}>Sair</button>
+              <Link to="/pokemons" onClick={() => setIsNavOpen(false)}>
+                Pokemons
+              </Link>
+              <Link to="/profile" onClick={() => setIsNavOpen(false)}>
+                Perfil
+              </Link>
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  logout();
+                  setIsNavOpen(false);
+                }}
+              >
+                Sair
+              </button>
             </>
           ) : (
             <>
-              <Link to="/login" onClick={() => setIsNavOpen(false)}>Login</Link>
-              <Link to="/register" onClick={() => setIsNavOpen(false)}>Registro</Link>
+              <Link to="/login" onClick={() => setIsNavOpen(false)}>
+                Login
+              </Link>
+              <Link to="/register" onClick={() => setIsNavOpen(false)}>
+                Registro
+              </Link>
             </>
           )}
         </nav>
@@ -51,7 +69,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route 
+          <Route
             path="/pokemons"
             element={
               <ProtectedRoute>
@@ -59,13 +77,13 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route 
+          <Route
             path="/profile"
             element={
               <ProtectedRoute>
                 <ProfilePage />
               </ProtectedRoute>
-            } 
+            }
           />
         </Routes>
       </main>
